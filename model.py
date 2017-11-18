@@ -9,14 +9,14 @@ Written by Waleed Abdulla
 
 import os
 import sys
-import glob
-import random
+import glob                      #查找文件路径
+import random                    #随机初始化
 import math
-import datetime
+import datetime                  #调用时间函数
 import itertools
-import json
-import re
-import logging
+import json                     #Json 一种轻量级的数据交换格式
+import re                       #正则化表达，匹配
+import logging                  #日志的各类调用
 from collections import OrderedDict
 import numpy as np
 import scipy.misc
@@ -42,9 +42,9 @@ assert LooseVersion(keras.__version__) >= LooseVersion('2.0.8')
 
 def log(text, array=None):
     """Prints a text message. And, optionally, if a Numpy array is provided it
-    prints it's shape, min, and max values.
+    prints it's shape, min, and max values.打印一条文本消息，并且，如果提供了一个Numpy数组，它可以打印它的形状，最小值和最大值。
     """
-    if array is not None:
+    if array is not None:        #输出text文本
         text = text.ljust(25)
         text += ("shape: {:20}  min: {:10.5f}  max: {:10.5f}".format(
             str(array.shape),
@@ -56,10 +56,10 @@ def log(text, array=None):
 class BatchNorm(KL.BatchNormalization):
     """Batch Normalization class. Subclasses the Keras BN class and
     hardcodes training=False so the BN layer doesn't update
-    during training.
+    during training.批量标准化类。 将Keras BN类和硬编码子类训练= False，以便在训练期间BN层不更新
 
     Batch normalization has a negative effect on training if batches are small
-    so we disable it here.
+    so we disable it here.如果批量很小，批量标准化会对培训产生负面影响，所以我们在这里将其禁用
     """
     def call(self, inputs, training=None):
         return super(self.__class__, self).call(inputs, training=False)

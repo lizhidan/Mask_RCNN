@@ -76,7 +76,7 @@ def identity_block(input_tensor, kernel_size, filters, stage, block,
                    use_bias=True):
     """The identity_block is the block that has no conv layer at shortcut
     # Arguments
-        input_tensor: input tensor
+        input_tensor: input tensor  #输入张量
         kernel_size: defualt 3, the kernel size of middle conv layer at main path
         filters: list of integers, the nb_filters of 3 conv layer at main path
         stage: integer, current stage label, used for generating layer names

@@ -71,7 +71,7 @@ class BatchNorm(KL.BatchNormalization):
 
 # Code adopted from:
 # https://github.com/fchollet/deep-learning-models/blob/master/resnet50.py
-
+"""
 def identity_block(input_tensor, kernel_size, filters, stage, block,
                    use_bias=True):   #(x, 3, [64, 64, 256], stage=2, block='b')
     """The identity_block is the block that has no conv layer at shortcut
@@ -175,7 +175,7 @@ def resnet_graph(input_image, architecture, stage5=False):  #？？stage5=False�
         C5 = None
     return [C1, C2, C3, C4, C5]
 
-
+"""
 ############################################################
 #  Proposal Layer   候选区层
 ############################################################
@@ -1620,7 +1620,7 @@ def data_generator(dataset, config, shuffle=True, augment=True, random_rois=0,
 ############################################################
 
 class MaskRCNN():
-    """Encapsulates the Mask RCNN model functionality.
+    """Encapsulates the Mask RCNN model functionality.封装Mask RCNN模型功能。
 
     The actual Keras model is in the keras_model property.
     """
@@ -1640,7 +1640,7 @@ class MaskRCNN():
 
     def build(self, mode, config):
         """Build Mask R-CNN architecture.
-            input_shape: The shape of the input image.
+            input_shape: The shape of the input image.输入图像大小
             mode: Either "training" or "inference". The inputs and 
                 outputs of the model differ accordingly.
         """
@@ -1651,7 +1651,8 @@ class MaskRCNN():
         if h/2**6 != int(h/2**6) or w/2**6 != int(w/2**6):
             raise Exception("Image size must be dividable by 2 at least 6 times "
                             "to avoid fractions when downscaling and upscaling."
-                            "For example, use 256, 320, 384, 448, 512, ... etc. ")
+                            "For example, use 256, 320, 384, 448, 512, ... etc. ")#图像大小必须至少可以被2的6次方整除，
+            #以便在缩小和放大时避免小数。“”例如，使用256,320,384,448,512等等。
         
         # Inputs
         input_image = KL.Input(shape=config.IMAGE_SHAPE.tolist(), name="input_image")
@@ -1682,7 +1683,7 @@ class MaskRCNN():
         # Bottom-up Layers
         # Returns a list of the last layers of each stage, 5 in total.
         # Don't create the thead (stage 5), so we pick the 4th item in the list.
-        _, C2, C3, C4, C5 = resnet_graph(input_image, "resnet50", stage5=True)#有改动：将resnet101改成了resnet50
+        _, C2, C3, C4, C5 = resnet_graph(input_image, "resnet50", stage5=True)#有改动：将resnet101改成了resnet50,再改成
         # Top-down Layers
         # TODO: add assert to varify feature map sizes match what's in config
         P5 = KL.Conv2D(256, (1, 1), name='fpn_c5p5')(C5)
@@ -1695,7 +1696,7 @@ class MaskRCNN():
         P2 = KL.Add(name="fpn_p2add")([
             KL.UpSampling2D(size=(2, 2), name="fpn_p3upsampled")(P3),
             KL.Conv2D(256, (1, 1), name='fpn_c2p2')(C2)])
-        # Attach 3x3 conv to all P layers to get the final feature maps.
+        # Attach 3x3 conv to all P layers to get the final feature maps.附加3x3转让所有p层获得最终的功能地图。
         P2 = KL.Conv2D(256, (3, 3), padding="SAME", name="fpn_p2")(P2)
         P3 = KL.Conv2D(256, (3, 3), padding="SAME", name="fpn_p3")(P3)
         P4 = KL.Conv2D(256, (3, 3), padding="SAME", name="fpn_p4")(P4)
@@ -1753,7 +1754,7 @@ class MaskRCNN():
                 # Ignore predicted ROIs and use ROIs provided as an input.
                 input_rois = KL.Input(shape=[config.POST_NMS_ROIS_TRAINING, 4],
                                     name="input_roi", dtype=np.int32)
-                # Normalize coordinates to 0-1 range.
+                # Normalize coordinates to 0-1 range.#规则化的坐标处在0-1的范围
                 target_rois = KL.Lambda(lambda x: K.cast(x, tf.float32) / image_scale[:4])(input_rois)
             else:
                 target_rois = rpn_rois

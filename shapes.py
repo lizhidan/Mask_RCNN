@@ -56,7 +56,9 @@ class ShapesConfig(Config):
 class ShapesDataset(utils.Dataset):
     """Generates the shapes synthetic dataset. The dataset consists of simple
     shapes (triangles, squares, circles) placed randomly on a blank surface.
-    The images are generated on the fly. No file access required.
+    The images are generated on the fly. No file access required.生成形状合成数据集。 
+    数据集包含随机放置在空白表面上的简单形状（三角形，正方形，圆形）。 
+    图像即时生成。 不需要文件访问。
     """
 
     def load_shapes(self, count, height, width):
@@ -64,12 +66,12 @@ class ShapesDataset(utils.Dataset):
         count: number of images to generate.
         height, width: the size of the generated images.
         """
-        # Add classes
+        # Add classes  类别号
         self.add_class("shapes", 1, "square")
         self.add_class("shapes", 2, "circle")
         self.add_class("shapes", 3, "triangle")
 
-        # Add images
+        # Add images 随机生成图像
         # Generate random specifications of images (i.e. color and
         # list of shapes sizes and locations). This is more compact than
         # actual images. Images are generated on the fly in load_image().
@@ -83,7 +85,8 @@ class ShapesDataset(utils.Dataset):
         """Generate an image from the specs of the given image ID.
         Typically this function loads the image from a file, but
         in this case it generates the image on the fly from the
-        specs in image_info.
+        specs in image_info.根据给定图像ID的规格生成图像。 通常这个函数从一个文件中加载图像，但是在这种情况下，
+        它会根据image_info中的规格来动态生成图像。
         """
         info = self.image_info[image_id]
         bg_color = np.array(info['bg_color']).reshape([1, 1, 3])
@@ -94,7 +97,7 @@ class ShapesDataset(utils.Dataset):
         return image
 
     def image_reference(self, image_id):
-        """Return the shapes data of the image."""
+        """Return the shapes data of the image.返回数据集的外形"""
         info = self.image_info[image_id]
         if info["source"] == "shapes":
             return info["shapes"]
@@ -102,7 +105,7 @@ class ShapesDataset(utils.Dataset):
             super(self.__class__).image_reference(self, image_id)
 
     def load_mask(self, image_id):
-        """Generate instance masks for shapes of the given image ID.
+        """Generate instance masks for shapes of the given image ID.依据image ID产生实例掩码
         """
         info = self.image_info[image_id]
         shapes = info['shapes']
@@ -111,12 +114,12 @@ class ShapesDataset(utils.Dataset):
         for i, (shape, _, dims) in enumerate(info['shapes']):
             mask[:, :, i:i+1] = self.draw_shape(mask[:, :, i:i+1].copy(),
                                                 shape, dims, 1)
-        # Handle occlusions
+        # Handle occlusions处理遮挡
         occlusion = np.logical_not(mask[:, :, -1]).astype(np.uint8)
         for i in range(count-2, -1, -1):
             mask[:, :, i] = mask[:, :, i] * occlusion
             occlusion = np.logical_and(occlusion, np.logical_not(mask[:, :, i]))
-        # Map class names to class IDs.
+        # Map class names to class IDs.将类名称映射到类ID。
         class_ids = np.array([self.class_names.index(s[0]) for s in shapes])
         return mask, class_ids.astype(np.int32)
 
@@ -139,11 +142,11 @@ class ShapesDataset(utils.Dataset):
     def random_shape(self, height, width):
         """Generates specifications of a random shape that lies within
         the given height and width boundaries.
-        Returns a tuple of three valus:
+        Returns a tuple of three valus:生成位于给定高度和宽度边界内的随机形状的规格。 返回三个值的元组：
         * The shape name (square, circle, ...)
         * Shape color: a tuple of 3 values, RGB.
         * Shape dimensions: A tuple of values that define the shape size
-                            and location. Differs per shape type.
+                            and location. Differs per shape type.定义形状大小和位置的值的元组。 每个形状类型不同
         """
         # Shape
         shape = random.choice(["square", "circle", "triangle"])
@@ -160,12 +163,14 @@ class ShapesDataset(utils.Dataset):
     def random_image(self, height, width):
         """Creates random specifications of an image with multiple shapes.
         Returns the background color of the image and a list of shape
-        specifications that can be used to draw the image.
+        specifications that can be used to draw the image.创建具有多种形状的图像的随机规格。
+         返回图像的背景颜色和形状列表
+         可以用来绘制图像的规格
         """
         # Pick random background color
         bg_color = np.array([random.randint(0, 255) for _ in range(3)])
         # Generate a few random shapes and record their
-        # bounding boxes
+        # bounding boxes生成一些随机的形状并记录下来边界框
         shapes = []
         boxes = []
         N = random.randint(1, 4)
@@ -175,7 +180,7 @@ class ShapesDataset(utils.Dataset):
             x, y, s = dims
             boxes.append([y-s, x-s, y+s, x+s])
         # Apply non-max suppression wit 0.3 threshold to avoid
-        # shapes covering each other
+        # shapes covering each other使用0.3阈值的非最大抑制来避免相互覆盖的形状
         keep_ixs = utils.non_max_suppression(np.array(boxes), np.arange(N), 0.3)
         shapes = [s for i, s in enumerate(shapes) if i in keep_ixs]
         return bg_color, shapes
